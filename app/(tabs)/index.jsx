@@ -1,18 +1,61 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import {
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import logoImg from '../../assets/images/logo.png';
+import useBLE from '../../hooks/useBLE';
 
 const App = () => {
+  const {
+    allDevices,
+    requestPermissions,
+    scanForPeripherals,
+    bleManager,
+  } = useBLE();
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const checkBluetoothState = async () => {
+    const state = await bleManager.state();
+    if (state !== 'PoweredOn') {
+      Alert.alert('Bluetooth Off', 'Please turn on Bluetooth to continue.');
+      return false;
+    }
+    return true;
+  };
+
+  const scanForDevices = async () => {
+    const isPermissionsEnabled = await requestPermissions();
+    if (isPermissionsEnabled) {
+      const isReady = await checkBluetoothState();
+      if (isReady) {
+        scanForPeripherals();
+      }
+    }
+  };
+
+  const openModal = async () => {
+    await scanForDevices();
+    setIsModalVisible(true);
+  };
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Image source={logoImg} style={styles.logo} />
-        <Text style={styles.title}>My BLE App</Text>
+        <Text style={styles.title}>Radial Connector</Text>
       </View>
 
       {/* Menu */}
       <View style={styles.menu}>
-        {['Home', 'Scan', 'Devices', 'Settings'].map((item) => (
+        {['Scan', 'RealTime ECG', 'RealTime PPG' , 'Manual Settings','Server Sync'].map((item) => (
           <TouchableOpacity key={item} style={styles.menuItem}>
             <Text style={styles.menuText}>{item}</Text>
           </TouchableOpacity>
@@ -20,27 +63,44 @@ const App = () => {
       </View>
 
       {/* Section 1 */}
-      <View style={styles.sectionOne}>
-        <Text style={styles.sectionTitle}>🔍 BLE Scanner</Text>
-        <Text style={styles.sectionContent}>Scan nearby devices and connect with ease.</Text>
-      </View>
+      <TouchableOpacity onPress={openModal}>
+        <View style={styles.sectionOne}>
+          <Text style={styles.sectionTitle}>🔍 BLE Scanner</Text>
+          <Text style={styles.sectionContent}>Tap to start scanning devices nearby.</Text>
+        </View>
+      </TouchableOpacity>
 
       {/* Section 2 */}
       <View style={styles.sectionTwo}>
-        <Text style={styles.sectionTitle}>📡 Connected Devices</Text>
-        <Text style={styles.sectionContent}>List and manage your active connections.</Text>
+        <Text style={styles.sectionTitle}>📡 Discovered Devices</Text>
+
+        {allDevices.length === 0 ? (
+          <Text style={styles.sectionContent}>No devices found yet...</Text>
+        ) : (
+          allDevices.map((device) => (
+            <View key={device.id} style={styles.deviceCard}>
+              <Text style={styles.deviceName}>
+                {device.name || device.localName || 'Unnamed Device'}
+              </Text>
+              <Text style={styles.deviceId}>{device.id}</Text>
+              <Text style={styles.deviceRssi}>Signal: {device.rssi}</Text>
+            </View>
+          ))
+        )}
       </View>
+
     </ScrollView>
   );
 };
 
 export default App;
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
-    padding: 20,
+    backgroundColor: '#070030ff',
+    padding: 30,
   },
   header: {
     flexDirection: 'row',
@@ -95,5 +155,26 @@ const styles = StyleSheet.create({
   sectionContent: {
     fontSize: 16,
     color: '#333',
+  },
+  deviceCard: {
+    backgroundColor: '#f8f8ff',
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 8,
+    borderColor: '#ccc',
+    borderWidth: 1,
+  },
+  deviceName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#004080',
+  },
+  deviceId: {
+    fontSize: 12,
+    color: '#888',
+  },
+  deviceRssi: {
+  fontSize: 12,
+  color: '#999',
   },
 });
