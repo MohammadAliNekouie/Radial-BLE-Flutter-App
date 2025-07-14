@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import {
-  Alert,
   Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import logoImg from '../../assets/images/logo.png';
 import useBLE from '../../hooks/useBLE';
@@ -16,23 +15,16 @@ const App = () => {
     allDevices,
     requestPermissions,
     scanForPeripherals,
-    bleManager,
+    connectToDevice,
+    checkBluetoothState,
   } = useBLE();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const checkBluetoothState = async () => {
-    const state = await bleManager.state();
-    if (state !== 'PoweredOn') {
-      Alert.alert('Bluetooth Off', 'Please turn on Bluetooth to continue.');
-      return false;
-    }
-    return true;
-  };
-
+  
   const scanForDevices = async () => {
     const isPermissionsEnabled = await requestPermissions();
     if (isPermissionsEnabled) {
+      console.log('Bluetooth have permissions')
       const isReady = await checkBluetoothState();
       if (isReady) {
         scanForPeripherals();
@@ -49,7 +41,9 @@ const App = () => {
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image source={logoImg} style={styles.logo} />
+        <TouchableOpacity onPress={() => console.log('Radial')}>
+          <Image source={logoImg} style={styles.logo}/>
+        </TouchableOpacity>
         <Text style={styles.title}>Radial Connector</Text>
       </View>
 
@@ -63,7 +57,7 @@ const App = () => {
       </View>
 
       {/* Section 1 */}
-      <TouchableOpacity onPress={openModal}>
+      <TouchableOpacity onPress={() => openModal()}>
         <View style={styles.sectionOne}>
           <Text style={styles.sectionTitle}>🔍 BLE Scanner</Text>
           <Text style={styles.sectionContent}>Tap to start scanning devices nearby.</Text>
@@ -78,13 +72,17 @@ const App = () => {
           <Text style={styles.sectionContent}>No devices found yet...</Text>
         ) : (
           allDevices.map((device) => (
-            <View key={device.id} style={styles.deviceCard}>
+            <TouchableOpacity
+              key={device.id}
+              style={styles.deviceCard}
+              onPress={() => connectToDevice(device)}
+            >
               <Text style={styles.deviceName}>
                 {device.name || device.localName || 'Unnamed Device'}
               </Text>
               <Text style={styles.deviceId}>{device.id}</Text>
               <Text style={styles.deviceRssi}>Signal: {device.rssi}</Text>
-            </View>
+            </TouchableOpacity>
           ))
         )}
       </View>
@@ -177,4 +175,14 @@ const styles = StyleSheet.create({
   fontSize: 12,
   color: '#999',
   },
+menuItemDisabled: {
+  backgroundColor: '#a9a9a9', // muted gray
+  borderRadius: 6,
+  paddingHorizontal: 10,
+},
+
+menuTextDisabled: {
+  color: '#dddddd', // light gray text
+},
+
 });

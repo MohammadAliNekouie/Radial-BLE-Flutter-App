@@ -12,8 +12,11 @@ import {
   Device,
 } from "react-native-ble-plx";
 
-const DATA_SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
-const COLOR_CHARACTERISTIC_UUID = "19b10001-e8f2-537e-4f6c-d104768a1217";
+const DATA_SERVICE_UUID =               "0000180D-0000-1000-8000-00805f9b34fb"; // Standard Heart Rate Service UUID + Bluetooth Base UUID
+const COLOR_CHARACTERISTIC_UUID =       "00002a37-0000-1000-8000-00805f9b34fb"; // Standard Heart Rate Measurement Characteristic UUID + Bluetooth Base UUID
+
+const GENERIC_ACCESS_SERVICE_UUID =     "00001800-0000-1000-8000-00805f9b34fb";
+const DEVICE_NAME_CHARACTERISTIC_UUID = "00002a00-0000-1000-8000-00805f9b34fb";
 
 const bleManager = new BleManager();
 
@@ -55,6 +58,16 @@ function useBLE() {
     );
   };
 
+  const checkBluetoothState = async () => {
+    const state = await bleManager.state();
+    if (state !== 'PoweredOn') {
+      console.log('Bluetooth turned Off');
+      return false;
+    }
+    console.log('Bluetooth is On');
+    return true;
+  };
+
   const requestPermissions = async () => {
     if (Platform.OS === "android") {
       if ((ExpoDevice.platformApiLevel ?? -1) < 31) {
@@ -78,23 +91,136 @@ function useBLE() {
     }
   };
 
-  const connectToDevice = async (device: Device) => {
+  /*
+ const connectToDevice = async (device: Device) => {
     try {
+      console.log(`Attempting to connect to: ${device.name || 'Unnamed Device'} (ID: ${device.id})`);
       const deviceConnection = await bleManager.connectToDevice(device.id);
       setConnectedDevice(deviceConnection);
+      // Discover all services
       await deviceConnection.discoverAllServicesAndCharacteristics();
-      bleManager.stopDeviceScan();
+      bleManager.stopDeviceScan(); 
+
+      console.log("--- DEBUG: Discovering Services on Device ---");
+      // listing all services
+      const services = await deviceConnection.services();
+
+      if (services.length === 0) {
+        console.log("Warning: No services were found on this device.");
+      } else {        console.log("Available Services Found:");
+
+        for (const service of services) {
+          console.log(`- Checking Service UUID: ${service.uuid}`);
+          if (service.uuid.toUpperCase() === GENERIC_ACCESS_SERVICE_UUID.toUpperCase()) {
+            try {
+              console.log("Found Generic Access Service. Reading Device Name...");
+              const characteristic = await device.readCharacteristicForService(
+                GENERIC_ACCESS_SERVICE_UUID,
+                DEVICE_NAME_CHARACTERISTIC_UUID
+              );
+
+              if (characteristic?.value) {
+                const deviceName = base64.decode(characteristic.value);
+                console.log(`✅ Decoded Device Name: ${deviceName}`);
+              }
+
+            } catch (error) {
+              console.log("❌ Error reading the device name characteristic:", error);
+            }
+            break;
+          }
+        }
+      }      console.log("--- DEBUG: End of Service Discovery ---");
 
       startStreamingData(deviceConnection);
     } catch (e) {
-      console.log("FAILED TO CONNECT", e);
+      console.log("FAILED TO CONNECT OR DISCOVER SERVICES", e);
+    }
+  };
+  */
+
+    const connectToDevice = async (device: Device) => {
+    try {
+      console.log(`Attempting to connect to: ${device.name || 'Unnamed Device'} (ID: ${device.id})`);
+      const deviceConnection = await bleManager.connectToDevice(device.id);
+      setConnectedDevice(deviceConnection);
+
+      // Discover all services & Characteristics
+      await deviceConnection.discoverAllServicesAndCharacteristics();
+      bleManager.stopDeviceScan();    
+
+      console.log("--- DEBUG: Discovering All Services and Characteristics ---");
+      // listing all services
+      const services = await deviceConnection.services();
+
+      if (services.length === 0) {
+        console.log("Warning: No services were found on this device.");
+      } else {
+        console.log("Available Services and Characteristics Found:");
+        
+        //for loop for working with await
+        for (const service of services) {
+          console.log(`- Service UUID: ${service.uuid}`);
+                    try {
+            //get the characteristics of each services
+            const characteristics = await service.characteristics();
+            
+            if (characteristics.length === 0) {
+              console.log("    - No characteristics found for this service.");
+            } else {
+              // print characteristics
+              for (const char of characteristics) {
+                const props = [];
+                if (char.isReadable) props.push("READ");
+                if (char.isWritableWithResponse) props.push("WRITE");
+                if (char.isWritableWithoutResponse) props.push("WRITE NO RESPONSE");
+                if (char.isNotifiable) props.push("NOTIFY");
+                if (char.isIndicatable) props.push("INDICATE");
+
+                // Read Device name characteristics
+                if (char.uuid.toUpperCase() === DEVICE_NAME_CHARACTERISTIC_UUID.toUpperCase()) {
+                  try {
+                    console.log("Found Generic Access Service. Reading Device Name...");
+                    const characteristic = await device.readCharacteristicForService(
+                      service.uuid,
+                      DEVICE_NAME_CHARACTERISTIC_UUID
+                    );
+
+                    if (characteristic?.value) {
+                      const deviceName = base64.decode(characteristic.value);
+                      console.log(`✅   - Char UUID: ${char.uuid} | Properties: [${props.join(', ')}]  ${deviceName}`);
+                    }
+                  } catch (error) {
+                    console.log(`❌   - Char UUID: ${char.uuid} | Properties: [${props.join(', ')}]  Error reading the device name: `,error);
+                  }
+                  break;
+                }
+                else
+                {
+                  console.log(
+                    `    - Char UUID: ${char.uuid} | Properties: [${props.join(', ')}]`
+                  );
+                }
+              }
+            }
+          } catch (error) {
+            console.log(`    - ERROR: Could not get characteristics for service ${service.uuid}`, error);
+          }
+        }
+      }      console.log("--- DEBUG: End of Discovery ---");
+
+      //now we can work with the data
+      startStreamingData(deviceConnection);
+    } catch (e) {      console.log("FAILED TO CONNECT OR DISCOVER SERVICES", e);
     }
   };
 
   const isDuplicteDevice = (devices: Device[], nextDevice: Device) =>
     devices.findIndex((device) => nextDevice.id === device.id) > -1;
 
-  const scanForPeripherals = () =>
+  const scanForPeripherals = () => {
+    console.log("Stop last active scan");
+    bleManager.stopDeviceScan();
     console.log("Scanning...");
     bleManager.startDeviceScan(null, null, (error, device) => {
       if (error) {
@@ -114,6 +240,7 @@ function useBLE() {
         });
       }
     });
+  };
 
   const onDataUpdate = (
     error: BleError | null,
@@ -158,6 +285,7 @@ function useBLE() {
     allDevices,
     connectedDevice,
     color,
+    checkBluetoothState,
     requestPermissions,
     scanForPeripherals,
     startStreamingData,
