@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Dimensions,
   Image,
   ScrollView,
   StyleSheet,
@@ -9,52 +8,10 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { LineChart } from 'react-native-chart-kit';
 import logoImg from '../../assets/images/logo.png';
 import useBLE from '../../hooks/useBLE';
 
-const RealTimeView = ({ bleColor, bleData = [] }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const animationRef = useRef(null);
-  const windowWidth = Dimensions.get('window').width;
-
-  // Animation effect
-  useEffect(() => {
-    if (bleData.length === 0) return;
-
-    const animate = () => {
-      setCurrentIndex(prev => (prev + 1) % bleData.length);
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    animationRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [bleData]);
-
-  // Prepare chart data
-  const getChartData = () => {
-    if (bleData.length === 0) return { labels: [], datasets: [{ data: [] }] };
-
-    // Show last 50 points for the oscilloscope effect
-    const startIdx = currentIndex >= 50 ? currentIndex - 50 : 0;
-    const endIdx = currentIndex;
-    const displayData = bleData.slice(startIdx, endIdx + 1);
-
-    return {
-      labels: displayData.map((_, i) => i.toString()),
-      datasets: [{
-        data: displayData.map(item => item.value),
-        color: (opacity = 1) => `rgba(214, 33, 79, ${opacity})`,
-        strokeWidth: 2
-      }]
-    };
-  };
-
+const RealTimeView = ({ bleData = [] }) => {
   return (
     <View style={styles.contentView}>
       <Text style={styles.sectionTitle}>📈 RealTime Monitoring</Text>
@@ -63,49 +20,6 @@ const RealTimeView = ({ bleColor, bleData = [] }) => {
           ? `Receiving data (${bleData.length} points)` 
           : "Waiting for data..."}
       </Text>
-      
-      {bleData.length > 0 ? (
-        <LineChart
-          data={getChartData()}
-          width={windowWidth - 60}
-          height={220}
-          yAxisLabel=""
-          yAxisSuffix=""
-          yAxisInterval={1}
-          chartConfig={{
-            backgroundColor: colors.primaryDark,
-            backgroundGradientFrom: colors.primaryDark,
-            backgroundGradientTo: colors.primaryDark,
-            decimalPlaces: 2,
-            color: (opacity = 1) => `rgba(207, 210, 255, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(238, 238, 238, ${opacity})`,
-            style: { borderRadius: 16 },
-            propsForDots: { r: "0" },
-            propsForBackgroundLines: {
-              stroke: colors.primaryLight,
-              strokeWidth: 0.5,
-              strokeDasharray: "0"
-            }
-          }}
-          bezier
-          style={{ marginVertical: 8, borderRadius: 16 }}
-          withHorizontalLabels={true}
-          withVerticalLabels={true}
-          withInnerLines={true}
-          withOuterLines={false}
-          segments={5}
-        />
-      ) : (
-        <View style={styles.chartPlaceholder}>
-          <ActivityIndicator size="large" color={colors.accent2Light} />
-          <Text style={styles.sectionContent}>No data received yet</Text>
-        </View>
-      )}
-
-      <View style={styles.colorDisplayContainer}>
-        <Text style={styles.sectionContent}>Received Color:</Text>
-        <View style={[styles.colorBox, { backgroundColor: bleColor }]} />
-      </View>
     </View>
   );
 };
@@ -244,7 +158,7 @@ const App = () => {
 
       <View>
         {activeTab === 'Scan' && <ScanView />}
-        {activeTab === 'RealTime Monitoring' && <RealTimeView bleColor={color} bleData={bleData} />}
+        {activeTab === 'RealTime Monitoring' && <RealTimeView bleData={bleData} />}
         {activeTab === 'Manual Settings' && <ManualSettingsView />}
         {activeTab === 'Server Sync' && <ServerSyncView />}
       </View>
@@ -386,27 +300,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 20,
     alignItems: 'center',
-  },
-  colorDisplayContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  colorBox: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
-    marginLeft: 15,
-    borderWidth: 2,
-    borderColor: colors.font,
-  },
-  chartPlaceholder: {
-    height: 220,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.primaryDark,
-    borderRadius: 16,
-    marginVertical: 8
   },
 });
 
