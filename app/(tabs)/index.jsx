@@ -10,21 +10,44 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import RNEChartsPro from 'react-native-echarts-pro';
 import logoImg from '../../assets/images/logo.png';
 import useBLE from '../../hooks/useBLE';
 
+
 const { width, height } = Dimensions.get('window');
 const scaleFont = (size) => (width / 480) * size; // 375 is iPhone 6 base width
+
+const pieOption = {
+  series: [
+    {
+      name: 'Source',
+      type: 'pie',
+      radius: '55%',
+      center: ['50%', '35%'],
+      startAngle: 180,
+      data: [
+        { value: 105.2, name: 'Android' },
+        { value: 310, name: 'iOS' },
+        { value: 234, name: 'Web' },
+      ],
+      label: {
+        show: true,
+        fontSize: 12,
+        color: '#ffffffff',
+      },
+    },
+  ],
+};
+
 
 const RealTimeView = ({ bleData = [] }) => {
   return (
     <View style={styles.contentView}>
       <Text style={styles.sectionTitle}>📈 RealTime Monitoring</Text>
-      <Text style={styles.sectionContent}>
-        {bleData.length > 0 
-          ? `Receiving data (${bleData.length} points)` 
-          : "Waiting for data..."}
-      </Text>
+      <View style={{ height: 300, paddingTop: 25 }}>
+        <RNEChartsPro height={250} option={pieOption} />
+      </View>
     </View>
   );
 };
