@@ -12,10 +12,10 @@ import {
   Device,
 } from "react-native-ble-plx";
 
-const DATA_SERVICE_UUID =               "0000180D-0000-1000-8000-00805f9b34fb"; // Standard Heart Rate Service UUID + Bluetooth Base UUID
-const COLOR_CHARACTERISTIC_UUID =       "00002a37-0000-1000-8000-00805f9b34fb"; // Standard Heart Rate Measurement Characteristic UUID + Bluetooth Base UUID
+const HEART_RATE_SERVICE_UUID =         "0000180D-0000-1000-8000-00805f9b34fb"; // Standard Heart Rate Service UUID + Bluetooth Base UUID
+const HEART_RATE_CHARACTERISTIC_UUID =  "00002a37-0000-1000-8000-00805f9b34fb"; // Standard Heart Rate Measurement Characteristic UUID + Bluetooth Base UUID
 
-const GENERIC_ACCESS_SERVICE_UUID =     "00001800-0000-1000-8000-00805f9b34fb";
+const GENERIC_ACCESS_PROTOCOL_UUID =    "00001800-0000-1000-8000-00805f9b34fb";
 const DEVICE_NAME_CHARACTERISTIC_UUID = "00002a00-0000-1000-8000-00805f9b34fb";
 
 const bleManager = new BleManager();
@@ -180,7 +180,6 @@ function useBLE() {
                 // Read Device name characteristics
                 if (char.uuid.toUpperCase() === DEVICE_NAME_CHARACTERISTIC_UUID.toUpperCase()) {
                   try {
-                    console.log("Found Generic Access Service. Reading Device Name...");
                     const characteristic = await device.readCharacteristicForService(
                       service.uuid,
                       DEVICE_NAME_CHARACTERISTIC_UUID
