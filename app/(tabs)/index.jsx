@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
+  I18nManager,
   Image,
   ScrollView,
   StyleSheet,
@@ -10,6 +12,9 @@ import {
 } from 'react-native';
 import logoImg from '../../assets/images/logo.png';
 import useBLE from '../../hooks/useBLE';
+
+const { width, height } = Dimensions.get('window');
+const scaleFont = (size) => (width / 480) * size; // 375 is iPhone 6 base width
 
 const RealTimeView = ({ bleData = [] }) => {
   return (
@@ -37,6 +42,9 @@ const ServerSyncView = () => (
     <Text style={styles.sectionContent}>Data synchronization options will be here...</Text>
   </View>
 );
+
+I18nManager.forceRTL(false);
+I18nManager.allowRTL(false);
 
 const App = () => {
   const {
@@ -196,7 +204,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   title: {
-    fontSize: 24,
+    fontSize: scaleFont(20),
     fontWeight: 'bold',
     color: colors.font,
   },
@@ -209,11 +217,13 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   menuItem: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 2,
     borderRadius: 8,
-    marginHorizontal: 3,
+    marginHorizontal: 5,
     flex: 1,
+    justifyContent : "center",
+    alignItems: 'center'    
   },
   menuItemActive: {
     backgroundColor: colors.accent1Light,
@@ -223,8 +233,10 @@ const styles = StyleSheet.create({
   },
   menuText: {
     fontWeight: '600',
-    fontSize: 12,
+    fontSize: scaleFont(12),
     textAlign: 'center',
+    verticalAlign: 'middle',
+    textAlignVertical: 'center',
   },
   menuTextInactive: {
     color: colors.fontdark,
@@ -250,13 +262,13 @@ const styles = StyleSheet.create({
     borderColor: colors.accent1Light
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: scaleFont(18),
     fontWeight: 'bold',
     marginBottom: 15,
     color: colors.font,
   },
   sectionContent: {
-    fontSize: 16,
+    fontSize: scaleFont(14),
     color: colors.font,
     lineHeight: 24,
   },
@@ -269,7 +281,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: colors.font,
-    fontSize: 16,
+    fontSize: scaleFont(14),
     fontWeight: 'bold',
   },
   deviceCard: {
@@ -281,16 +293,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   deviceName: {
-    fontSize: 16,
+    fontSize: scaleFont(14),
     fontWeight: '600',
     color: colors.font,
   },
   deviceId: {
-    fontSize: 12,
+    fontSize: scaleFont(10),
     color: colors.fontMuted,
   },
   deviceRssi: {
-    fontSize: 12,
+    fontSize: scaleFont(10),
     color: colors.fontMuted,
   },
   disconnectButton: {
