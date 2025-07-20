@@ -212,12 +212,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primaryLight,
-    padding: 20,
+    padding: scaleFont(20),
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
+    padding: scaleFont(15),
     borderRadius: 22,
   },
   logo: {
@@ -236,14 +236,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     backgroundColor: colors.accent2Light,
     borderRadius: 10,
-    marginVertical: 15,
-    paddingVertical: 5,
+    marginVertical: scaleFont(15),
+    paddingVertical: scaleFont(5),
   },
   menuItem: {
-    paddingHorizontal: 12,
-    paddingVertical: 2,
+    paddingHorizontal: scaleFont(12),
+    paddingVertical: scaleFont(2),
     borderRadius: 8,
-    marginHorizontal: 5,
+    marginHorizontal: scaleFont(5),
     flex: 1,
     justifyContent : "center",
     alignItems: 'center'    
