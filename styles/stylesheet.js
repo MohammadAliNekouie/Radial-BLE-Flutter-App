@@ -162,16 +162,16 @@ const styles = StyleSheet.create({
     textAlign: I18nManager.isRTL ? 'right' : 'left',
   },
   ecgContainer: {
-    marginVertical: 5,
-    height: height * 0.4,
+    marginVertical: scaleFont(5),
+    height: height / scaleFont(3),
     padding: 0,
     backgroundColor: colors.primaryLight,
     //borderColor: colors.primaryDark,
     //borderWidth: 2,   
   },
   ppgContainer: {
-    marginVertical: 5,
-    height: height * 0.15, // 1/3 of top (approx. 15% height * ⅓ ≈ 5%)
+    marginVertical: scaleFont(5),
+    height: height / scaleFont(5),
     padding: 0,
     backgroundColor: colors.primaryLight,
     //borderColor: colors.primaryDark,
@@ -182,7 +182,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#888',
     textAlign: 'center',
+    marginVertical: scaleFont(20),
     zIndex:10,
+    //borderColor: colors.primaryDark,
+    //borderWidth: 2,     
   }
 });
 

@@ -12,7 +12,7 @@ import {
 import RNEChartsPro from 'react-native-echarts-pro';
 import logoImg from '../../assets/images/logo.png';
 import useBLE from '../../hooks/useBLE';
-import { colors, height, styles, width } from '../../styles/stylesheet';
+import { colors, styles } from '../../styles/stylesheet';
 
 
 
@@ -63,9 +63,8 @@ const RealTimeView = ({ bleData = {}, ecgData = [], ppgData = [] }) => {
       {/* Section 2: ECG */}
       <View style={styles.ecgContainer}>
         <RNEChartsPro
-          style={{ flex: 1, width: width, height: height*0.3 }} 
           option={{
-            xAxis: { show: false,data: Array.from({ length: 29 }, (_, i) => i), },
+            xAxis: { show: true,data: Array.from({ length: 29 }, (_, i) => i), },
             yAxis: { show: true },
             series: [{
               data: [
@@ -75,18 +74,25 @@ const RealTimeView = ({ bleData = {}, ecgData = [], ppgData = [] }) => {
               type: 'line',
               smooth: true,
               lineStyle: { color: '#0077b6' }
-            }]
+            }],
+            grid: {
+              left: '0%',
+              right: '0%',
+              top: '0%',
+              bottom: '0%',
+              height: '70%',
+              containLabel: true, // prevents extra space
+            }            
           }}
-        />
-        <Text style={styles.chartTitle}>ECG Signal</Text>
+        />        
       </View>
+      <Text style={styles.chartTitle}>ECG Signal</Text>
 
       {/* Section 3: PPG */}
       <View style={styles.ppgContainer}>
         <RNEChartsPro
-          style={{ flex: 1, width: width, height: height*0.05 }} 
           option={{
-            xAxis: { show: false,data: Array.from({ length: 29 }, (_, i) => i), },
+            xAxis: { show: true,data: Array.from({ length: 29 }, (_, i) => i), },
             yAxis: { show: true },
             series: [{
               data: [
@@ -96,11 +102,19 @@ const RealTimeView = ({ bleData = {}, ecgData = [], ppgData = [] }) => {
               type: 'line',
               smooth: true,
               lineStyle: { color: '#d62828' }
-            }]
+            }],
+            grid: {
+              left: '0%',
+              right: '0%',
+              top: '0%',
+              bottom: '0%',
+              height: '45%',
+              containLabel: true, // prevents extra space
+            }                
           }}
-        />
-        <Text style={styles.chartTitle}>PPG Signal</Text>
+        />        
       </View>
+      <Text style={styles.chartTitle}>PPG Signal</Text>
     </View>
   );
 };
