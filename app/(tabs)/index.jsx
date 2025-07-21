@@ -1,52 +1,103 @@
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Dimensions,
   I18nManager,
   Image,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
+
 import RNEChartsPro from 'react-native-echarts-pro';
 import logoImg from '../../assets/images/logo.png';
 import useBLE from '../../hooks/useBLE';
+import { colors, height, styles, width } from '../../styles/stylesheet';
 
 
-const { width, height } = Dimensions.get('window');
-const scaleFont = (size) => (width / 480) * size; // 375 is iPhone 6 base width
 
-const pieOption = {
+
+const option = {
+  yAxis: {
+    type: 'value',
+    show: true,
+  },
   series: [
     {
-      name: 'Source',
-      type: 'pie',
-      radius: '55%',
-      center: ['50%', '35%'],
-      startAngle: 180,
-      data: [
-        { value: 105.2, name: 'Android' },
-        { value: 310, name: 'iOS' },
-        { value: 234, name: 'Web' },
-      ],
-      label: {
-        show: true,
-        fontSize: 12,
-        color: '#ffffffff',
+      data: [150, 230, 224, 218, 135, 147, 210,150, 230, 224, 218, 135, 147, 210],
+      type: 'line',
+      areaStyle: {
+        color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [{
+                    offset: 0, color: '#891126' // color at 0%
+                }, {
+                    offset: 1, color: '#E01648' // color at 100%
+                }],
+                global: false // default is false
+              },
       },
+      lineStyle: {
+        color: "#d6d6d7",
+      },      
     },
   ],
 };
 
 
-const RealTimeView = ({ bleData = [] }) => {
+const RealTimeView = ({ bleData = {}, ecgData = [], ppgData = [] }) => {
+  const { hr = '74', spo2 = '96' } = bleData;
+
   return (
-    <View style={styles.contentView}>
-      <Text style={styles.sectionTitle}>📈 RealTime Monitoring</Text>
-      <View style={{ height: 300, paddingTop: 25 }}>
-        <RNEChartsPro height={250} option={pieOption} />
+    <View style={styles.RealtimeContainer}>
+      {/* Section 1: Vitals */}
+      <View style={styles.vitalsContainer}>
+        <Text style={styles.vitalText}>❤️ HR: {hr} bpm</Text>
+        <Text style={styles.vitalText}>🫁 SPO2: {spo2}%</Text>
+      </View>
+
+      {/* Section 2: ECG */}
+      <View style={styles.ecgContainer}>
+        <RNEChartsPro
+          style={{ flex: 1, width: width, height: height*0.3 }} 
+          option={{
+            xAxis: { show: false },
+            yAxis: { show: true },
+            series: [{
+              data: [
+                      0, 0.5, 1, 0.4, 0.2, -0.3, -0.6, 0, 0.2, 0.4, 0.1, -0.2, 0, 0.6, 1, 0.5,
+                      0.3, 0, -0.4, 0, 0.2, 0.6, 1, 0.7, 0.3, 0, -0.2, 0, 0.2
+                    ],
+              type: 'line',
+              lineStyle: { color: '#0077b6' }
+            }]
+          }}
+        />
+        <Text style={styles.chartTitle}>ECG Signal</Text>
+      </View>
+
+      {/* Section 3: PPG */}
+      <View style={styles.ppgContainer}>
+        <RNEChartsPro
+          style={{ flex: 1, width: width, height: height*0.05 }} 
+          option={{
+            xAxis: { show: false },
+            yAxis: { show: true },
+            series: [{
+              data: [
+                      0, 0.5, 1, 0.4, 0.2, -0.3, -0.6, 0, 0.2, 0.4, 0.1, -0.2, 0, 0.6, 1, 0.5,
+                      0.3, 0, -0.4, 0, 0.2, 0.6, 1, 0.7, 0.3, 0, -0.2, 0, 0.2
+                    ],
+              type: 'line',
+              lineStyle: { color: '#d62828' }
+            }]
+          }}
+        />
+        <Text style={styles.chartTitle}>PPG Signal</Text>
       </View>
     </View>
   );
@@ -196,146 +247,5 @@ const App = () => {
     </ScrollView>
   );
 };
-
-const colors = {
-  primaryDark: '#2c3179ff',
-  primaryLight: '#15183dff',
-  accent1Dark: '#D6214F',
-  accent1Light: '#E3476F',
-  accent2Light: '#cfd2ffff',
-  font: '#EEE',
-  fontdark: '#111',
-  fontMuted: '#AAA',
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.primaryLight,
-    padding: scaleFont(20),
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: scaleFont(15),
-    borderRadius: 22,
-  },
-  logo: {
-    width: 50,
-    height: 50,
-    marginRight: 10,
-    resizeMode: 'contain',
-  },
-  title: {
-    fontSize: scaleFont(20),
-    fontWeight: 'bold',
-    color: colors.font,
-  },
-  menu: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: colors.accent2Light,
-    borderRadius: 10,
-    marginVertical: scaleFont(15),
-    paddingVertical: scaleFont(5),
-  },
-  menuItem: {
-    paddingHorizontal: scaleFont(12),
-    paddingVertical: scaleFont(2),
-    borderRadius: 8,
-    marginHorizontal: scaleFont(5),
-    flex: 1,
-    justifyContent : "center",
-    alignItems: 'center'    
-  },
-  menuItemActive: {
-    backgroundColor: colors.accent1Light,
-  },
-  menuItemDisabled: {
-    backgroundColor: 'transparent',
-  },
-  menuText: {
-    fontWeight: '600',
-    fontSize: scaleFont(12),
-    textAlign: 'center',
-    verticalAlign: 'middle',
-    textAlignVertical: 'center',
-  },
-  menuTextInactive: {
-    color: colors.fontdark,
-  },
-  menuTextActive: {
-    color: colors.font,
-  },
-  menuTextDisabled: {
-    color: '#a7a7a7ff',
-  },
-  contentView: {
-    backgroundColor: colors.primaryDark,
-    padding: 20,
-    borderRadius: 12,
-    minHeight: 300,
-  },
-  sectionOne: {
-    backgroundColor: colors.primaryDark,
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: colors.accent1Light
-  },
-  sectionTitle: {
-    fontSize: scaleFont(18),
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: colors.font,
-  },
-  sectionContent: {
-    fontSize: scaleFont(14),
-    color: colors.font,
-    lineHeight: 24,
-  },
-  scanButton: {
-    backgroundColor: colors.accent1Light,
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: colors.font,
-    fontSize: scaleFont(14),
-    fontWeight: 'bold',
-  },
-  deviceCard: {
-    backgroundColor: colors.primaryLight,
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 8,
-    borderColor: colors.primaryDark,
-    borderWidth: 1,
-  },
-  deviceName: {
-    fontSize: scaleFont(14),
-    fontWeight: '600',
-    color: colors.font,
-  },
-  deviceId: {
-    fontSize: scaleFont(10),
-    color: colors.fontMuted,
-  },
-  deviceRssi: {
-    fontSize: scaleFont(10),
-    color: colors.fontMuted,
-  },
-  disconnectButton: {
-    backgroundColor: colors.accent1Dark,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    marginTop: 20,
-    alignItems: 'center',
-  },
-});
 
 export default App;
