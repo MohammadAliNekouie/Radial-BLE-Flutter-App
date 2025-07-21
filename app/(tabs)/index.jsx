@@ -1,20 +1,148 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   I18nManager,
-  Image,
+  Image, Pressable,
   ScrollView,
-  Text,
+  Text, TextInput,
   TouchableOpacity,
   View
 } from 'react-native';
 
 import RNEChartsPro from 'react-native-echarts-pro';
+import { CheckBox } from 'react-native-just-checkbox';
 import logoImg from '../../assets/images/logo.png';
+import { useMaterialPickers } from '../../hooks/datetimepicker';
 import useBLE from '../../hooks/useBLE';
 import { colors, styles } from '../../styles/stylesheet';
 
 
+const PickaDate = ({ initialDate, onDateChange }) => {
+  const { showTimePicker, showDatePicker } = useMaterialPickers();
+  const [date, setDate] = useState(initialDate || new Date());
+  const [time, setTime] = useState(new Date());
+
+  const handleDatePress = () => showDatePicker(date, (newDate) => {
+    setDate(newDate);
+    onDateChange(newDate); // Update parent form
+  });
+  const handleTimePress = () => showTimePicker(time, setTime);
+
+  return (
+    <View style={styles.container}>
+      <Pressable onPress={handleDatePress} style={styles.pickerButton}>
+        <Text style={styles.label}>📅 Select Date:</Text>
+        <Text style={styles.value}>{date.toLocaleDateString()}</Text>
+      </Pressable>
+
+      <Pressable onPress={handleTimePress} style={styles.pickerButton}>
+        <Text style={styles.label}>⏰ Select Time:</Text>
+        <Text style={styles.value}>{time.toLocaleTimeString()}</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+const SettingsForm = () => {
+  const [form, setForm] = useState({
+    fileName: '',
+    recordLengthSec: '',
+    recordIntervalMin: '',
+    notifDelaySec: '',
+    startH: '',
+    startM: '',
+    sleepH: '',
+    sleepM: '',
+    expiryDate: new Date(),
+    agc: false,
+    vib: false,
+    evo: false
+  });
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const handleChange = (key, value) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
+
+    const handleDateChange = (newDate) => {
+    handleChange('expiryDate', newDate);
+    setShowDatePicker(false); // Hide after selection
+  };
+
+  return (
+    <View style={styles.formcontainer}>
+      {/* Row 1 */}
+      <LabeledInput label="📁 File Name:" value={form.fileName} onChangeText={(t) => handleChange('fileName', t)} />
+
+      {/* Row 2-4 */}
+      <LabeledInput label="Length of Records (Sec):" value={form.recordLengthSec} onChangeText={(t) => handleChange('recordLengthSec', t)} />
+      <LabeledInput label="Time Between Records (Min):" value={form.recordIntervalMin} onChangeText={(t) => handleChange('recordIntervalMin', t)} />
+      <LabeledInput label="Time Between Notif and Record (Sec):" value={form.notifDelaySec} onChangeText={(t) => handleChange('notifDelaySec', t)} />
+
+      {/* Row 5 */}
+      <View style={styles.row}>
+        <LabeledInput label="Start H:" value={form.startH} onChangeText={(t) => handleChange('startH', t)} half />
+        <LabeledInput label="Start M:" value={form.startM} onChangeText={(t) => handleChange('startM', t)} half />
+      </View>
+
+      {/* Row 6 */}
+      <View style={styles.row}>
+        <LabeledInput label="Sleep H:" value={form.sleepH} onChangeText={(t) => handleChange('sleepH', t)} half />
+        <LabeledInput label="Sleep M:" value={form.sleepM} onChangeText={(t) => handleChange('sleepM', t)} half />
+      </View>
+
+      {/* Row 7 */}
+      <View style={styles.row}>
+        <Pressable onPress={() => setShowDatePicker(true)} style={styles.dateButton}>
+          <Text style={styles.dateText}>📆 Expiry: {form.expiryDate.toLocaleDateString()}</Text>
+        </Pressable>
+      </View>
+
+      {/* Conditionally render PickaDate */}
+      {showDatePicker && (
+        <PickaDate 
+          initialDate={form.expiryDate} 
+          onDateChange={handleDateChange} // Pass prop to update form
+        />
+      )}     
+
+      <View style={styles.checkboxRow}>
+        <Checkbox isChecked={true} checkColor="#ff2121ff" fillColor="#fefeffff" fillMode={true} label="AGC"  onPress={(v) => handleChange('agc', v)} />
+        <Checkbox isChecked={true} checkColor="#ff2121ff" fillColor="#fefeffff" fillMode={true} label="Vib"  onPress={(v) => handleChange('vib', v)} />
+        <Checkbox isChecked={true} checkColor="#ff2121ff" fillColor="#fefeffff" fillMode={true} label="Evo"  onPress={(v) => handleChange('evo', v)} />
+      </View>
+
+      {/* Row 8 */}
+      <View style={styles.buttonRow}>
+        <Pressable style={styles.btn} onPress={() => console.log('Update')}>
+          <Text style={styles.btnText}>UPDATE SETTING</Text>
+        </Pressable>
+        <Pressable style={styles.btn} onPress={() => console.log('Read')}>
+          <Text style={styles.btnText}>READ SETTING</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+};
+
+const LabeledInput = ({ label, value, onChangeText, half = false }) => (
+  <View style={[styles.labeledInput, half && { flex: 1, marginHorizontal: 5 }]}>
+    <Text style={styles.label}>{label}</Text>
+    <TextInput
+      style={styles.input}
+      value={value}
+      onChangeText={onChangeText}
+      keyboardType="default"
+    />
+  </View>
+);
+
+const Checkbox = ({ label, value, onValueChange }) => (
+  <View style={styles.checkboxContainer}>
+    <CheckBox value={value} onValueChange={onValueChange} />
+    <Text style={styles.checkboxLabel}>{label}</Text>
+  </View>
+);
 
 
 const option = {
@@ -123,6 +251,7 @@ const ManualSettingsView = () => (
   <View style={styles.contentView}>
     <Text style={styles.sectionTitle}>⚙️ Manual Settings</Text>
     <Text style={styles.sectionContent}>Device settings will be configured here...</Text>
+    <SettingsForm />
   </View>
 );
 
@@ -197,7 +326,7 @@ const App = () => {
           <Text style={styles.buttonText}>🔍 Tap to Scan for Devices</Text>
         </TouchableOpacity>
         <Text style={styles.sectionTitle}>📡 Discovered Devices</Text>
-        {isConnecting && <ActivityIndicator size="large" color={colors.accent2Light} style={{marginVertical: 10}}/>}
+        {isConnecting && <ActivityIndicator size="large" color={colors.RedPink} style={{marginVertical: 10}}/>}
         {allDevices.length === 0 && !isConnecting ? (
           <Text style={styles.sectionContent}>No devices found yet...</Text>
         ) : (
