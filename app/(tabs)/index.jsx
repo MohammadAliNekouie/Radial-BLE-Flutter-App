@@ -65,7 +65,7 @@ const RealTimeView = ({ bleData = {}, ecgData = [], ppgData = [] }) => {
         <RNEChartsPro
           style={{ flex: 1, width: width, height: height*0.3 }} 
           option={{
-            xAxis: { show: false },
+            xAxis: { show: false,data: Array.from({ length: 29 }, (_, i) => i), },
             yAxis: { show: true },
             series: [{
               data: [
@@ -73,6 +73,7 @@ const RealTimeView = ({ bleData = {}, ecgData = [], ppgData = [] }) => {
                       0.3, 0, -0.4, 0, 0.2, 0.6, 1, 0.7, 0.3, 0, -0.2, 0, 0.2
                     ],
               type: 'line',
+              smooth: true,
               lineStyle: { color: '#0077b6' }
             }]
           }}
@@ -85,7 +86,7 @@ const RealTimeView = ({ bleData = {}, ecgData = [], ppgData = [] }) => {
         <RNEChartsPro
           style={{ flex: 1, width: width, height: height*0.05 }} 
           option={{
-            xAxis: { show: false },
+            xAxis: { show: false,data: Array.from({ length: 29 }, (_, i) => i), },
             yAxis: { show: true },
             series: [{
               data: [
@@ -93,6 +94,7 @@ const RealTimeView = ({ bleData = {}, ecgData = [], ppgData = [] }) => {
                       0.3, 0, -0.4, 0, 0.2, 0.6, 1, 0.7, 0.3, 0, -0.2, 0, 0.2
                     ],
               type: 'line',
+              smooth: true,
               lineStyle: { color: '#d62828' }
             }]
           }}
