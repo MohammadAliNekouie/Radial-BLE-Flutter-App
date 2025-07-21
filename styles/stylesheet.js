@@ -23,13 +23,14 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: scaleFont(15),
+    padding: scaleFont(10),
     borderRadius: 22,
   },
   logo: {
-    width: 50,
-    height: 50,
+    width: 64,
+    height: 64,
     marginRight: 10,
+    marginTop:15,
     resizeMode: 'contain',
   },
   title: {
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     backgroundColor: colors.accent2Light,
     borderRadius: 10,
-    marginVertical: scaleFont(15),
+    marginVertical: scaleFont(5),
     paddingVertical: scaleFont(5),
   },
   menuItem: {
@@ -151,7 +152,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',    
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 0,      
+    marginVertical: scaleFont(10),    
   },
   vitalText: {
     fontSize: scaleFont(16),
