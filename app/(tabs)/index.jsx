@@ -107,9 +107,9 @@ const SettingsForm = () => {
       )}     
 
       <View style={styles.checkboxRow}>
-        <Checkbox isChecked={true} checkColor="#ff2121ff" fillColor="#fefeffff" fillMode={true} label="AGC"  onPress={(v) => handleChange('agc', v)} />
-        <Checkbox isChecked={true} checkColor="#ff2121ff" fillColor="#fefeffff" fillMode={true} label="Vib"  onPress={(v) => handleChange('vib', v)} />
-        <Checkbox isChecked={true} checkColor="#ff2121ff" fillColor="#fefeffff" fillMode={true} label="Evo"  onPress={(v) => handleChange('evo', v)} />
+        <Checkbox style={styles.ckb} isChecked={true} checkColor="#ff2121ff" fillColor="#fefeffff" fillMode={true} label="AGC"  onPress={(v) => handleChange('agc', v)} />
+        <Checkbox style={styles.ckb} isChecked={true} checkColor="#ff2121ff" fillColor="#fefeffff" fillMode={true} label="Vib"  onPress={(v) => handleChange('vib', v)} />
+        <Checkbox style={styles.ckb} isChecked={true} checkColor="#ff2121ff" fillColor="#fefeffff" fillMode={true} label="Evo"  onPress={(v) => handleChange('evo', v)} />
       </View>
 
       {/* Row 8 */}
@@ -255,12 +255,47 @@ const ManualSettingsView = () => (
   </View>
 );
 
-const ServerSyncView = () => (
-  <View style={styles.contentView}>
-    <Text style={styles.sectionTitle}>☁️ Server Sync</Text>
-    <Text style={styles.sectionContent}>Data synchronization options will be here...</Text>
-  </View>
-);
+const ServerSyncView = () => {
+  // A helper function to handle button presses
+  const handlePress = (buttonName) => {
+    console.log(`Action: ${buttonName}`);
+    // TODO: Add specific logic for each button here
+  };
+
+  return (
+    <View style={styles.contentView}>
+      <Text style={styles.sectionTitle}>☁️ Server Sync</Text>
+
+      {/* Button 1: Sync With Server */}
+      <Pressable
+        style={styles.syncButton}
+        onPress={() => handlePress('Sync With Server')}>
+        <Text style={styles.syncButtonText}>Sync With Server</Text>
+      </Pressable>
+
+      {/* Button 2: Update AFE Config */}
+      <Pressable
+        style={styles.syncButton}
+        onPress={() => handlePress('Update AFE Config')}>
+        <Text style={styles.syncButtonText}>Update AFE Config</Text>
+      </Pressable>
+
+      {/* Button 3: Update Firmware */}
+      <Pressable
+        style={styles.syncButton}
+        onPress={() => handlePress('Update Firmware')}>
+        <Text style={styles.syncButtonText}>Update Firmware</Text>
+      </Pressable>
+
+      {/* Button 4: Reset to Factory Settings */}
+      <Pressable
+        style={[styles.syncButton, styles.factoryResetButton]}
+        onPress={() => handlePress('Reset to Factory Settings')}>
+        <Text style={styles.syncButtonText}>Reset to Factory Settings</Text>
+      </Pressable>
+    </View>
+  );
+};
 
 I18nManager.forceRTL(false);
 I18nManager.allowRTL(false);

@@ -284,6 +284,24 @@ const styles = StyleSheet.create({
     color: '#ff402aff',
     backgroundColor: '#ff402aff',
   },
+  syncButton: {
+  backgroundColor: colors.RedBase, // A blue color for standard actions
+  paddingVertical: scaleFont(10),
+  alignItems: 'center',
+  borderRadius: 10,
+  marginVertical: scaleFont(10), // Adds vertical space between buttons
+  width: '100%',     // Ensures the button is full-width within its container
+},
+syncButtonText: {
+  color: colors.fontLight, // Assumes you have a white color in your theme
+  fontSize: scaleFont(14),
+  fontWeight: '600',
+  fontWeight: 'bold',
+  textTransform: 'uppercase',  
+},
+factoryResetButton: {
+  backgroundColor: colors.RedLight, // Uses existing red color for a destructive action
+},
 });
 
 
